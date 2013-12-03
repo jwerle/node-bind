@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title></title>
+    <script type="text/javascript" src="build.js" charset="utf-8"></script>
+    <style type="text/css" media="all">
+      #async {
+        padding: 50px;
+        margin: 10px;
+        width: 300px;
+        border: 1px solid #ceccee;
+      }
+
+      #node {
+        margin: 10px;
+        padding: 20px;
+        border 1px solid #cecece;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="text" name="" id="node" value="" />
+    <div id="async">
+    </div>
+    <script type="text/javascript" charset="utf-8">
+      var nbind = require('node-bind');
+      var assert = require('assert');
+      var node = document.getElementById('node');
+      var ael = document.getElementById('async');
+      var i = 0;
+      var to = null;
+      var obj = null;
+      var obj2 = null;
+      var async = null;
+
+      obj = nbind(node, {
+        value: function (v) { return this.value = v + 'xx'; }
+      });
+
+      assert(obj.value == node.value);
+
+      obj2 = nbind(node, {
+        value: function (v) { return this.value = 'yy' + v }
+      });
+
+      assert(obj2.value == node.value);
+      assert(obj.value == obj2.value);
+
+      obj.value = 123;
+
+      assert("123xx" == obj.value);
+      assert("123xx" == obj2.value);
+      assert("123xx" == node.value);
+
+      obj2.value = 321;
+
+      assert("yy321" == obj.value);
+      assert("yy321" == obj2.value);
+      assert("yy321" == node.value);
+
+      async = nbind(ael, {
+        innerHTML: function (html) {
+          var self = this;
+          setTimeout(function () {
+            self.innerHTML = '<span style="color: green;">'+ html +'</span>';
+
+          });
+        }
+      });
+
+
+      to = setTimeout(function beep () {
+        if (i++ > 10) {
+          return clearTimeout(to);
+        }
+
+        async.innerHTML = r().toString('16');
+        assert(async.innerHTML == ael.innerHTML);
+        to = setTimeout(beep, r);
+      }, r())
+
+      function r () {
+        return i * 10000000;
+      }
+
+    </script>
+  </body>
+</html>
